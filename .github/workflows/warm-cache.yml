@@ -22,15 +22,16 @@ jobs:
           ok=0
           warn=0
           fail=0
+          headers=$(mktemp)
           while IFS= read -r url; do
             [ -z "$url" ] && continue
-            result=$(curl -s -L --compressed --max-time 20 -A "$USER_AGENT" \
-              -o /dev/null -w "%{http_code}|%{time_total}|%header{x-litespeed-cache}|%{num_redirects}|%{url_effective}" "$url")
+            result=$(curl -s -L --compressed --max-time 20 -A "$USER_AGENT" -D "$headers" \
+              -o /dev/null -w "%{http_code}|%{time_total}|%{num_redirects}|%{url_effective}" "$url")
             code=$(echo "$result" | cut -d'|' -f1)
             time_total=$(echo "$result" | cut -d'|' -f2)
-            cache_status=$(echo "$result" | cut -d'|' -f3 | tr -d '\r\n')
-            redirects=$(echo "$result" | cut -d'|' -f4)
-            final_url=$(echo "$result" | cut -d'|' -f5 | tr -d '\r\n')
+            redirects=$(echo "$result" | cut -d'|' -f3)
+            final_url=$(echo "$result" | cut -d'|' -f4 | tr -d '\r\n')
+            cache_status=$(grep -i '^x-litespeed-cache:' "$headers" | tail -1 | cut -d: -f2- | tr -d ' \r\n')
             echo "$(date -u '+%Y-%m-%d %H:%M:%S') code=$code time=${time_total}s cache=${cache_status:-n/a} url=$url"
             if [ "$code" = "200" ]; then
               ok=$((ok+1))
@@ -44,6 +45,7 @@ jobs:
             fi
             sleep 1
           done < urls.txt
+          rm -f "$headers"
           echo "RESUMEN ok=$ok warn=$warn fail=$fail"
           if [ "$fail" -gt 0 ]; then
             exit 1
