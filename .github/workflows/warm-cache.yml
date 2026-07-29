@@ -20,23 +20,31 @@ jobs:
           set -uo pipefail
           USER_AGENT="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36 NaturalisCacheWarmer/1.0 (+github-actions)"
           ok=0
+          warn=0
           fail=0
           while IFS= read -r url; do
             [ -z "$url" ] && continue
-            result=$(curl -s --compressed --max-time 20 -A "$USER_AGENT" \
-              -o /dev/null -w "%{http_code} %{time_total} %header{x-litespeed-cache}" "$url")
-            code=$(echo "$result" | awk '{print $1}')
-            time_total=$(echo "$result" | awk '{print $2}')
-            cache_status=$(echo "$result" | cut -d' ' -f3- | tr -d '\r\n')
+            result=$(curl -s -L --compressed --max-time 20 -A "$USER_AGENT" \
+              -o /dev/null -w "%{http_code}|%{time_total}|%header{x-litespeed-cache}|%{num_redirects}|%{url_effective}" "$url")
+            code=$(echo "$result" | cut -d'|' -f1)
+            time_total=$(echo "$result" | cut -d'|' -f2)
+            cache_status=$(echo "$result" | cut -d'|' -f3 | tr -d '\r\n')
+            redirects=$(echo "$result" | cut -d'|' -f4)
+            final_url=$(echo "$result" | cut -d'|' -f5 | tr -d '\r\n')
             echo "$(date -u '+%Y-%m-%d %H:%M:%S') code=$code time=${time_total}s cache=${cache_status:-n/a} url=$url"
             if [ "$code" = "200" ]; then
               ok=$((ok+1))
+              if [ "${redirects:-0}" != "0" ]; then
+                warn=$((warn+1))
+                echo "::warning::Redireccion: $url -> $final_url (actualizar urls.txt)"
+              fi
             else
               fail=$((fail+1))
+              echo "::error::Fallo code=$code url=$url"
             fi
             sleep 1
           done < urls.txt
-          echo "RESUMEN ok=$ok fail=$fail"
+          echo "RESUMEN ok=$ok warn=$warn fail=$fail"
           if [ "$fail" -gt 0 ]; then
             exit 1
           fi
