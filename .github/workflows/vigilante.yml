@@ -1,0 +1,113 @@
+name: Vigilante Naturalis
+
+# Comprueba lo esencial del sitio tras la migracion a Cloudflare.
+# Silencio si todo va bien. Si algo falla, el job termina en rojo y GitHub
+# manda un correo automatico al dueno del repositorio.
+# Minutos no redondos: GitHub se salta las ejecuciones en :00.
+
+on:
+  schedule:
+    - cron: '7,37 * * * *'
+  workflow_dispatch:
+
+jobs:
+  comprobar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Bateria de comprobaciones
+        run: |
+          set -uo pipefail
+          UA="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+          IP_ORIGEN="75.102.58.134"
+          HUELLA_DKIM="3dd50b393b51"
+          fallos=0
+          aviso() { echo "::error::$1"; fallos=$((fallos+1)); }
+          alerta() { echo "::warning::$1"; }
+
+          echo "== 1. El sitio responde y pasa por Cloudflare =="
+          hdr=$(curl -sSI -A "$UA" --max-time 30 https://soynaturalis.com/ || true)
+          code=$(printf '%s' "$hdr" | head -1 | awk '{print $2}')
+          ray=$(printf '%s' "$hdr" | grep -i '^cf-ray' | tr -d '\r' | awk '{print $2}')
+          borde=$(printf '%s' "$hdr" | grep -i '^cf-cache-status' | tr -d '\r' | awk '{print $2}')
+          echo "   http=$code cf-ray=${ray:-NINGUNO} cf-cache=${borde:-NINGUNO}"
+          [ "$code" = "200" ] || aviso "La portada no devuelve 200 (devuelve ${code:-sin respuesta})"
+          [ -n "$ray" ] || aviso "La peticion NO paso por Cloudflare (falta cf-ray): revisar DNS o proxy"
+
+          echo "== 2. El HTML no debe cachearse en el borde (riesgo H15/H28) =="
+          case "$borde" in
+            DYNAMIC|BYPASS|"") echo "   ok ($borde)";;
+            *) alerta "cf-cache-status=$borde : Cloudflare esta CACHEANDO EL HTML. Riesgo de carrito y nonces rotos (H15/H28)";;
+          esac
+
+          echo "== 3. El correo no debe pasar por Cloudflare =="
+          ip_mail=$(dig +short A mail.soynaturalis.com @1.1.1.1 | head -1)
+          echo "   mail -> ${ip_mail:-vacio}"
+          [ "$ip_mail" = "$IP_ORIGEN" ] || aviso "mail.soynaturalis.com resuelve a '${ip_mail:-vacio}' en vez de $IP_ORIGEN. EL CORREO PUEDE ESTAR CAIDO"
+          mx=$(dig +short MX soynaturalis.com @1.1.1.1 | tr -d '\r' | head -1)
+          echo "   MX -> ${mx:-vacio}"
+          case "$mx" in *mail.soynaturalis.com.*) : ;; *) aviso "El MX no apunta a mail.soynaturalis.com (es '${mx:-vacio}')";; esac
+
+          echo "== 4. DKIM intacto (si se pierde, el correo falla en silencio) =="
+          clave=$(dig +short TXT default._domainkey.soynaturalis.com @1.1.1.1 | tr -d '"' | tr -d ' \n' | grep -o 'p=[A-Za-z0-9+/=]*' | sed 's/^p=//')
+          huella=$(printf '%s' "$clave" | sha256sum | cut -c1-12)
+          echo "   longitud=${#clave} huella=$huella"
+          [ "$huella" = "$HUELLA_DKIM" ] || aviso "La huella DKIM cambio: esperada $HUELLA_DKIM, obtenida ${huella:-vacia}. El correo saliente puede estar fallando DKIM"
+          dig +short TXT soynaturalis.com @1.1.1.1 | grep -q 'v=spf1' || aviso "El registro SPF ha desaparecido"
+
+          echo "== 5. Certificados =="
+          for destino in "soynaturalis.com:443 borde" "$IP_ORIGEN:443 origen"; do
+            hostport=$(echo "$destino" | awk '{print $1}')
+            etiqueta=$(echo "$destino" | awk '{print $2}')
+            fin=$(echo | openssl s_client -servername soynaturalis.com -connect "$hostport" 2>/dev/null | openssl x509 -noout -enddate 2>/dev/null | cut -d= -f2)
+            if [ -z "$fin" ]; then
+              aviso "No se pudo leer el certificado de $etiqueta ($hostport)"
+            else
+              dias=$(( ( $(date -d "$fin" +%s) - $(date +%s) ) / 86400 ))
+              echo "   $etiqueta caduca en $dias dias ($fin)"
+              [ "$dias" -gt 10 ] || aviso "El certificado de $etiqueta caduca en $dias dias y no se ha renovado"
+            fi
+          done
+
+          echo "== 6. Paginas clave =="
+          for ruta in / /tienda-2/ /carrito-2/ /my-account/ /blog/; do
+            c=$(curl -sS -o /dev/null -A "$UA" --max-time 30 -w '%{http_code}' "https://soynaturalis.com$ruta" || true)
+            echo "   $ruta -> $c"
+            [ "$c" = "200" ] || aviso "La pagina $ruta devuelve $c en vez de 200"
+          done
+
+          echo "== 7. El carrito acepta productos (camino real de H15/H28: invitado + nonce) =="
+          # La Store API exige nonce: primero GET al carrito para obtenerlo, luego POST.
+          # Sin este paso previo la respuesta es 401 y la alarma seria falsa.
+          pid=$(curl -sS -A "$UA" --max-time 30 https://soynaturalis.com/ | grep -oE 'data-product_id="[0-9]+"' | head -1 | grep -oE '[0-9]+')
+          if [ -z "${pid:-}" ]; then
+            alerta "No se encontro ningun producto en la portada para probar el carrito"
+          else
+            curl -sS -A "$UA" --max-time 30 -c /tmp/ck.txt -D /tmp/h.txt -o /dev/null \
+              https://soynaturalis.com/wp-json/wc/store/v1/cart || true
+            nonce=$(grep -i '^nonce:' /tmp/h.txt 2>/dev/null | tr -d '\r' | awk '{print $2}')
+            if [ -z "${nonce:-}" ]; then
+              aviso "El carrito no devuelve nonce: la Store API no responde como debe"
+            else
+              resp=$(curl -sS -A "$UA" --max-time 30 -b /tmp/ck.txt -o /tmp/cart.json -w '%{http_code}' \
+                -X POST -H 'Content-Type: application/json' -H "Nonce: $nonce" \
+                -d "{\"id\":$pid,\"quantity\":1}" \
+                https://soynaturalis.com/wp-json/wc/store/v1/cart/add-item || true)
+              echo "   producto $pid -> http=$resp"
+              case "$resp" in
+                200|201) grep -q "\"id\":$pid" /tmp/cart.json || aviso "El carrito respondio $resp pero el producto $pid no aparece dentro";;
+                *) aviso "El carrito NO acepta productos (http=$resp con el producto $pid). Revisar checkout";;
+              esac
+            fi
+          fi
+
+          echo "== 8. El origen sigue accesible por su cuenta =="
+          co=$(curl -sS -o /dev/null -A "$UA" --max-time 30 --resolve "soynaturalis.com:443:$IP_ORIGEN" -w '%{http_code}' https://soynaturalis.com/ || true)
+          echo "   origen directo -> $co"
+          [ "$co" = "200" ] || aviso "El servidor de origen no responde 200 directamente (devuelve $co). El problema NO es Cloudflare"
+
+          echo
+          if [ "$fallos" -gt 0 ]; then
+            echo "RESULTADO: $fallos comprobacion(es) fallida(s)."
+            exit 1
+          fi
+          echo "RESULTADO: todo correcto."
