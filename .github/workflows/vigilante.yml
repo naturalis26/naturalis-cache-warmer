@@ -105,6 +105,26 @@ jobs:
           echo "   origen directo -> $co"
           [ "$co" = "200" ] || aviso "El servidor de origen no responde 200 directamente (devuelve $co). El problema NO es Cloudflare"
 
+          echo "== 9. Nonce de pestanas de producto: mecanismo real de H15/H28 (distinto del de la Store API) =="
+          # El nonce que rompio H15/H28 vive en admin-ajax.php (accion themesky), no en la Store API del paso 7.
+          # Se extrae de __litespeed_var_0__ en la portada (hueco ESI de LiteSpeed) y se prueba contra el AJAX real.
+          tabs_nonce=""
+          for intento in 1 2; do
+            home_html=$(curl -sS -A "$UA" --max-time 30 https://soynaturalis.com/ || true)
+            tabs_nonce=$(printf '%s' "$home_html" | grep -oE '__litespeed_var_0__="[a-f0-9]{10}"' | grep -oE '[a-f0-9]{10}')
+            [ -n "$tabs_nonce" ] && break
+          done
+          if [ -z "$tabs_nonce" ]; then
+            alerta "No se pudo extraer el nonce de pestanas tras 2 intentos (estructura del HTML cambio o curl recibio una variante degradada)"
+          else
+            resp=$(curl -sS -A "$UA" --max-time 30 \
+              -H "Origin: https://soynaturalis.com" -H "Referer: https://soynaturalis.com/" \
+              -H "X-Requested-With: XMLHttpRequest" \
+              -X POST "https://soynaturalis.com/wp-admin/admin-ajax.php" \
+              -d "action=ts_get_product_content_in_category_tab&security=$tabs_nonce&product_cat=180&is_general_tab=" || true)
+            echo "   nonce=$tabs_nonce -> ${resp:0:30}"
+            [ "$resp" = "-1" ] && aviso "El AJAX de pestanas de producto devolvio -1 (nonce invalido/caducado): riesgo H15/H28 real"
+          fi
           echo
           if [ "$fallos" -gt 0 ]; then
             echo "RESULTADO: $fallos comprobacion(es) fallida(s)."
