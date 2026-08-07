@@ -78,7 +78,7 @@ jobs:
           echo "== 7. El carrito acepta productos (camino real de H15/H28: invitado + nonce) =="
           # La Store API exige nonce: primero GET al carrito para obtenerlo, luego POST.
           # Sin este paso previo la respuesta es 401 y la alarma seria falsa.
-          pid=$(curl -sS -A "$UA" --max-time 30 https://soynaturalis.com/ | grep -oE 'data-product_id="[0-9]+"' | head -1 | grep -oE '[0-9]+')
+          pid=$(curl -sS -A "$UA" --max-time 30 https://soynaturalis.com/ | grep -oE 'data-product_id="[0-9]+"' | head -1 | grep -oE '[0-9]+') || true
           if [ -z "${pid:-}" ]; then
             alerta "No se encontro ningun producto en la portada para probar el carrito"
           else
