@@ -125,6 +125,14 @@ jobs:
             echo "   nonce=$tabs_nonce -> ${resp:0:30}"
             [ "$resp" = "-1" ] && aviso "El AJAX de pestanas de producto devolvio -1 (nonce invalido/caducado): riesgo H15/H28 real"
           fi
+
+          echo "== 10. El bloque de nonces ESI no debe venir corrupto (rompio banners y pestanas el 2026-08-07) =="
+          bloque=$(printf '%s' "$home_html" | grep -oE '<script>var __litespeed_var_0__="[a-f0-9]{10}",__litespeed_var_1__="[a-f0-9]{10}",__litespeed_var_2__="[a-f0-9]{10}";</script>')
+          if [ -z "$bloque" ]; then
+            aviso "El bloque de nonces ESI de la portada esta corrupto o cambio de formato (no son 3 valores hex limpios)"
+          else
+            echo "   bloque de nonces limpio"
+          fi
           echo
           if [ "$fallos" -gt 0 ]; then
             echo "RESULTADO: $fallos comprobacion(es) fallida(s)."
