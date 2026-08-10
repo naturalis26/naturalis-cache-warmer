@@ -16,7 +16,6 @@ https://soynaturalis.com/categoria-producto/nutricion-deportiva/creatinas/creati
 https://soynaturalis.com/categoria-producto/nutricion-deportiva/creatinas/mutant/
 https://soynaturalis.com/categoria-producto/nutricion-deportiva/otros-suplementos/
 https://soynaturalis.com/categoria-producto/nutricion-deportiva/otros-suplementos/pre-entreno/
-https://soynaturalis.com/categoria-producto/nutricion-deportiva/page/2/
 https://soynaturalis.com/categoria-producto/nutricion-deportiva/proteinas/
 https://soynaturalis.com/categoria-producto/nutricion-deportiva/proteinas/proteinas-hipercaloricas/
 https://soynaturalis.com/categoria-producto/nutricion-deportiva/proteinas/proteinas-isolate/
@@ -140,7 +139,6 @@ https://soynaturalis.com/producto/levadura-de-cerveza/
 https://soynaturalis.com/producto/maxcol-on-fibra-250-gr/
 https://soynaturalis.com/producto/maxcol-on-forte-x-60-capsulas/
 https://soynaturalis.com/producto/megaplex-creatine-power-proteina-creatina-monohidrato/
-https://soynaturalis.com/producto/megaplex-proteina-caseina-creatina-monohidrato/
 https://soynaturalis.com/producto/melatonin/
 https://soynaturalis.com/producto/mentix-miel-dia-x-6/
 https://soynaturalis.com/producto/mentix-miel-noche-x-6/
@@ -162,7 +160,6 @@ https://soynaturalis.com/producto/propoleo-jengibre-limon/
 https://soynaturalis.com/producto/proteina-vegana-x-3-lb-sabor-vainilla/
 https://soynaturalis.com/producto/proteina-whey-elite-x-2-libras-sabor-vainilla/
 https://soynaturalis.com/producto/proteina-whey-elite-x-5-libras-sabor-vainilla/
-https://soynaturalis.com/producto/proteina-whey-elite-x-8-libras-sabor-vainilla/
 https://soynaturalis.com/producto/repuesto-te-goslim/
 https://soynaturalis.com/producto/rheumadaul-capsulas-x-20/
 https://soynaturalis.com/producto/salfem-sm/
