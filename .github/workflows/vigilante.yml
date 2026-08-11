@@ -88,14 +88,14 @@ jobs:
             if [ -z "${nonce:-}" ]; then
               aviso "El carrito no devuelve nonce: la Store API no responde como debe"
             else
-              resp=$(curl -sS -A "$UA" --max-time 30 -b /tmp/ck.txt -o /tmp/cart.json -w '%{http_code}' \
+              resp=$(curl -sS -A "$UA" --max-time 30 -b /tmp/ck.txt -D /tmp/hp.txt -o /tmp/cart.json -w '%{http_code}' \
                 -X POST -H 'Content-Type: application/json' -H "Nonce: $nonce" \
                 -d "{\"id\":$pid,\"quantity\":1}" \
                 https://soynaturalis.com/wp-json/wc/store/v1/cart/add-item || true)
               echo "   producto $pid -> http=$resp"
               case "$resp" in
                 200|201) grep -q "\"id\":$pid" /tmp/cart.json || aviso "El carrito respondio $resp pero el producto $pid no aparece dentro";;
-                *) aviso "El carrito NO acepta productos (http=$resp con el producto $pid). Revisar checkout";;
+                *) ray=$(grep -i '^cf-ray:' /tmp/hp.txt 2>/dev/null | tr -d '\r'); cuerpo=$(head -c 200 /tmp/cart.json 2>/dev/null | tr -d '\n'); aviso "El carrito NO acepta productos (http=$resp, producto $pid). $ray. Cuerpo: $cuerpo";;
               esac
             fi
           fi
