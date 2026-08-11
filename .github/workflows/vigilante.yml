@@ -84,12 +84,12 @@ jobs:
           else
             curl -sS -A "$UA" --max-time 30 -c /tmp/ck.txt -D /tmp/h.txt -o /dev/null \
               https://soynaturalis.com/wp-json/wc/store/v1/cart || true
-            nonce=$(grep -i '^nonce:' /tmp/h.txt 2>/dev/null | tr -d '\r' | awk '{print $2}') || true
+            nonce=$(grep -i '^nonce:' /tmp/h.txt 2>/dev/null | tr -d '\r' | awk '{print $2}') || true; cart_token=$(grep -i '^cart-token:' /tmp/h.txt 2>/dev/null | tr -d '\r' | awk '{print $2}') || true
             if [ -z "${nonce:-}" ]; then
               aviso "El carrito no devuelve nonce: la Store API no responde como debe"
             else
               resp=$(curl -sS -A "$UA" --max-time 30 -b /tmp/ck.txt -D /tmp/hp.txt -o /tmp/cart.json -w '%{http_code}' \
-                -X POST -H 'Content-Type: application/json' -H "Nonce: $nonce" \
+                -X POST -H 'Content-Type: application/json' -H "Nonce: $nonce" -H "Cart-Token: $cart_token" \
                 -d "{\"id\":$pid,\"quantity\":1}" \
                 https://soynaturalis.com/wp-json/wc/store/v1/cart/add-item || true)
               echo "   producto $pid -> http=$resp"
