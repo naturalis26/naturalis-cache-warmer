@@ -84,7 +84,7 @@ jobs:
           else
             curl -sS -A "$UA" --max-time 30 -c /tmp/ck.txt -D /tmp/h.txt -o /dev/null \
               https://soynaturalis.com/wp-json/wc/store/v1/cart || true
-            nonce=$(grep -i '^nonce:' /tmp/h.txt 2>/dev/null | tr -d '\r' | awk '{print $2}')
+            nonce=$(grep -i '^nonce:' /tmp/h.txt 2>/dev/null | tr -d '\r' | awk '{print $2}') || true
             if [ -z "${nonce:-}" ]; then
               aviso "El carrito no devuelve nonce: la Store API no responde como debe"
             else
@@ -111,7 +111,7 @@ jobs:
           tabs_nonce=""
           for intento in 1 2; do
             home_html=$(curl -sS -A "$UA" --max-time 30 https://soynaturalis.com/ || true)
-            tabs_nonce=$(printf '%s' "$home_html" | grep -oE '__litespeed_var_0__="[a-f0-9]{10}"' | grep -oE '[a-f0-9]{10}')
+            tabs_nonce=$(printf '%s' "$home_html" | grep -oE '__litespeed_var_0__="[a-f0-9]{10}"' | grep -oE '[a-f0-9]{10}') || true
             [ -n "$tabs_nonce" ] && break
           done
           if [ -z "$tabs_nonce" ]; then
@@ -127,7 +127,7 @@ jobs:
           fi
 
           echo "== 10. El bloque de nonces ESI no debe venir corrupto (rompio banners y pestanas el 2026-08-07) =="
-          bloque=$(printf '%s' "$home_html" | grep -oE '<script>var __litespeed_var_0__="[a-f0-9]{10}",__litespeed_var_1__="[a-f0-9]{10}",__litespeed_var_2__="[a-f0-9]{10}";</script>')
+          bloque=$(printf '%s' "$home_html" | grep -oE '<script>var __litespeed_var_0__="[a-f0-9]{10}",__litespeed_var_1__="[a-f0-9]{10}",__litespeed_var_2__="[a-f0-9]{10}";</script>') || true
           if [ -z "$bloque" ]; then
             aviso "El bloque de nonces ESI de la portada esta corrupto o cambio de formato (no son 3 valores hex limpios)"
           else
