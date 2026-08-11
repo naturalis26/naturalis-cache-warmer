@@ -115,7 +115,7 @@ jobs:
             [ -n "$tabs_nonce" ] && break
           done
           if [ -z "$tabs_nonce" ]; then
-            alerta "No se pudo extraer el nonce de pestanas tras 2 intentos (estructura del HTML cambio o curl recibio una variante degradada)"
+            tam=${#home_html}; inicio=$(printf '%s' "$home_html" | head -c 100 | tr -d '\n'); alerta "No se pudo extraer el nonce de pestanas tras 2 intentos. tam=$tam bytes inicio=$inicio"
           else
             resp=$(curl -sS -A "$UA" --max-time 30 \
               -H "Origin: https://soynaturalis.com" -H "Referer: https://soynaturalis.com/" \
@@ -129,7 +129,7 @@ jobs:
           echo "== 10. El bloque de nonces ESI no debe venir corrupto (rompio banners y pestanas el 2026-08-07) =="
           bloque=$(printf '%s' "$home_html" | grep -oE '<script>var __litespeed_var_0__="[a-f0-9]{10}",__litespeed_var_1__="[a-f0-9]{10}",__litespeed_var_2__="[a-f0-9]{10}";</script>') || true
           if [ -z "$bloque" ]; then
-            aviso "El bloque de nonces ESI de la portada esta corrupto o cambio de formato (no son 3 valores hex limpios)"
+            tam=${#home_html}; inicio=$(printf '%s' "$home_html" | head -c 100 | tr -d '\n'); aviso "El bloque de nonces ESI de la portada esta corrupto o cambio de formato. tam=$tam bytes inicio=$inicio"
           else
             echo "   bloque de nonces limpio"
           fi
