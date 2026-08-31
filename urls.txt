@@ -9,7 +9,6 @@ https://soynaturalis.com/categoria-producto/fitoterapeuticos/
 https://soynaturalis.com/categoria-producto/homeopaticos/
 https://soynaturalis.com/categoria-producto/homeopaticos/esencias-florales/
 https://soynaturalis.com/categoria-producto/medicamentos/
-https://soynaturalis.com/categoria-producto/muscletech/
 https://soynaturalis.com/categoria-producto/nutricion-deportiva/
 https://soynaturalis.com/categoria-producto/nutricion-deportiva/creatinas/
 https://soynaturalis.com/categoria-producto/nutricion-deportiva/creatinas/creatina-time/
@@ -20,12 +19,9 @@ https://soynaturalis.com/categoria-producto/nutricion-deportiva/proteinas/
 https://soynaturalis.com/categoria-producto/nutricion-deportiva/proteinas/proteinas-hipercaloricas/
 https://soynaturalis.com/categoria-producto/nutricion-deportiva/proteinas/proteinas-isolate/
 https://soynaturalis.com/categoria-producto/nutricion-deportiva/proteinas/proteinas-whey/
-https://soynaturalis.com/categoria-producto/ofertas/
 https://soynaturalis.com/categoria-producto/suplementos-dietarios/
-https://soynaturalis.com/categoria-producto/vitanas/
 https://soynaturalis.com/contactanos/
 https://soynaturalis.com/envios-reembolso-devoluciones/
-https://soynaturalis.com/faqs/
 https://soynaturalis.com/marca/botanitas/
 https://soynaturalis.com/marca/carymer/
 https://soynaturalis.com/marca/disnatura/
@@ -98,12 +94,9 @@ https://soynaturalis.com/producto/colagenil-hidrolizado-x-700gr/
 https://soynaturalis.com/producto/colageno-biotina/
 https://soynaturalis.com/producto/colageno-hidrolizado-biotina/
 https://soynaturalis.com/producto/colageno-hidrolizado-premium/
-https://soynaturalis.com/producto/colageno-hidrolizado/
 https://soynaturalis.com/producto/colageno/
 https://soynaturalis.com/producto/combo-stevil-30ml-10ml/
 https://soynaturalis.com/producto/cona-gerol/
-https://soynaturalis.com/producto/creakong/
-https://soynaturalis.com/producto/creakore-creatina-monohidrato-y-hcl-x-30-sachets/
 https://soynaturalis.com/producto/creatina-platinum-100/
 https://soynaturalis.com/producto/creatine-time-100-300-gr/
 https://soynaturalis.com/producto/creatine-time-50-servicios-150-gr/
