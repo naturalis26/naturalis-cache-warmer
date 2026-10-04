@@ -26,7 +26,7 @@ jobs:
           headers=$(mktemp)
           while IFS= read -r url; do
             [ -z "$url" ] && continue
-            result=$(curl -s -L --compressed --max-time 20 -A "$USER_AGENT" -D "$headers" \
+            result=$(curl -s -L --compressed --max-time 20 -A "$USER_AGENT" -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8" -D "$headers" \
               -o /dev/null -w "%{http_code}|%{time_total}|%{num_redirects}|%{url_effective}" "$url")
             code=$(echo "$result" | cut -d'|' -f1)
             time_total=$(echo "$result" | cut -d'|' -f2)
