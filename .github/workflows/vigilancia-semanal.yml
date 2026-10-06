@@ -1,0 +1,23 @@
+name: Vigilancia semanal soynaturalis.com
+
+# Falla (y GitHub avisa por correo) si: cambia el tema Merto o sus hojas CSS (regenerar CSS recortado
+# de portada), la portada deja de usar la hoja recortada, Cloudflare deja de servir desde cache / se
+# cuela una cookie / se mezclan movil y escritorio, Poppins vuelve a romperse, o alguna ficha tiene
+# la imagen principal por encima de 30 KB (foto nueva sin aligerar). Ver vigilancia_semanal.py.
+on:
+  schedule:
+    - cron: "0 13 * * 1"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  vigilancia:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Comprobar
+        run: python3 vigilancia_semanal.py
