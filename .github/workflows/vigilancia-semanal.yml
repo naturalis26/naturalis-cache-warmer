@@ -1,16 +1,20 @@
-name: Vigilancia semanal soynaturalis.com
+name: Naturalis - vigilancia semanal (fotos, cache, tema)
 
-# Falla (y GitHub avisa por correo) si: cambia el tema Merto o sus hojas CSS (regenerar CSS recortado
-# de portada), la portada deja de usar la hoja recortada, Cloudflare deja de servir desde cache / se
-# cuela una cookie / se mezclan movil y escritorio, Poppins vuelve a romperse, o alguna ficha tiene
-# la imagen principal por encima de 30 KB (foto nueva sin aligerar). Ver vigilancia_semanal.py.
+# Si algo falla abre un aviso (issue) cuyo titulo dice que arreglar, p. ej.
+# "Naturalis: corregir peso de fotos (2)". GitHub lo envia por correo. Detalle en vigilancia_semanal.py.
 on:
   schedule:
     - cron: "0 13 * * 1"
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      prueba_aviso:
+        description: "Simular un fallo para probar que llega el correo"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
+  issues: write
 
 jobs:
   vigilancia:
@@ -20,4 +24,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
       - name: Comprobar
+        env:
+          PRUEBA_AVISO: ${{ inputs.prueba_aviso && '1' || '0' }}
         run: python3 vigilancia_semanal.py
+      - name: Abrir aviso con lo que hay que arreglar
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh issue create --repo "$GITHUB_REPOSITORY" --title "$(cat aviso_titulo.txt)" --body-file aviso_cuerpo.txt
