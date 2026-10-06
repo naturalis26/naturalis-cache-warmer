@@ -112,11 +112,45 @@ def imagenes():
     print(f"Imagenes revisadas: {len(prods)} fichas, {len(pesadas)} por encima de {LIMITE_IMG_KB} KB")
 
 
+QUE_ARREGLAR = {
+    "A": "regenerar CSS de portada (cambio en tema Merto)",
+    "B": "revisar CSS recortado de portada",
+    "C": "revisar cache de Cloudflare",
+    "D": "arreglar fuente Poppins",
+    "E": "corregir peso de fotos",
+}
+
+
+def escribir_aviso():
+    """Titulo y cuerpo del aviso (issue de GitHub, llega por correo) con lo que hay que arreglar."""
+    partes = []
+    for letra, texto in QUE_ARREGLAR.items():
+        n = sum(1 for f in fallos if f.startswith(letra + ":"))
+        if n:
+            partes.append(f"{texto} ({n})")
+    otros = [f for f in fallos if f[:2] not in {k + ":" for k in QUE_ARREGLAR}]
+    if otros:
+        partes.append(f"revisar la vigilancia ({len(otros)} errores)")
+    titulo = "Naturalis: " + " + ".join(partes)
+    cuerpo = "Vigilancia semanal de soynaturalis.com. Hay que arreglar:\n\n" + "\n".join("- " + f for f in fallos)
+    cuerpo += "\n\nPasarselo al auditor WP (proyecto naturalis-wp-auditor): CHANGELOG 2026-10-06 (9) explica cada comprobacion."
+    with open("aviso_titulo.txt", "w") as f:
+        f.write(titulo[:250])
+    with open("aviso_cuerpo.txt", "w") as f:
+        f.write(cuerpo)
+    print("AVISO:", titulo)
+
+
 if __name__ == "__main__":
+    import os
     for paso in (tema_y_portada, cloudflare_y_poppins, imagenes):
         try:
             paso()
         except Exception as e:  # un fallo de red tambien debe avisar
             fallo(f"{paso.__name__}: error {e}")
+    if os.environ.get("PRUEBA_AVISO") == "1":
+        fallo("E: PRUEBA del aviso por correo (no hay nada que arreglar; cerrar este aviso)")
     print(f"RESUMEN: {len(fallos)} fallos")
+    if fallos:
+        escribir_aviso()
     sys.exit(1 if fallos else 0)
