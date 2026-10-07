@@ -11,7 +11,7 @@ permissions:
 jobs:
   warm-cache:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60  # 2026-10-07: dos pasadas (escritorio + iPhone); con el origen lento 30 min no bastaba
     steps:
       - name: Checkout
         uses: actions/checkout@v5
