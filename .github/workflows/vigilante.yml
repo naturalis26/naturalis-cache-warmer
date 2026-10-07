@@ -88,7 +88,7 @@ jobs:
               https://soynaturalis.com/wp-json/wc/store/v1/cart || true
             nonce=$(grep -i '^nonce:' /tmp/h.txt 2>/dev/null | tr -d '\r' | awk '{print $2}') || true; cart_token=$(grep -i '^cart-token:' /tmp/h.txt 2>/dev/null | tr -d '\r' | awk '{print $2}') || true
             if [ -z "${nonce:-}" ]; then
-              aviso "El carrito no devuelve nonce: la Store API no responde como debe"
+              cod=$(head -1 /tmp/h.txt 2>/dev/null | tr -d '\r'); ray=$(grep -i '^cf-ray:' /tmp/h.txt 2>/dev/null | tr -d '\r'); aviso "El carrito no devuelve nonce: la Store API no responde como debe (${cod:-sin respuesta}; $ray)"
             else
               resp=$(curl -sS -A "$UA" --max-time 30 -b /tmp/ck.txt -D /tmp/hp.txt -o /tmp/cart.json -w '%{http_code}' \
                 -X POST -H 'Content-Type: application/json' -H "Nonce: $nonce" -H "Cart-Token: $cart_token" \
@@ -119,7 +119,7 @@ jobs:
           if [ -z "$tabs_nonce" ]; then
             tam=${#home_html}; inicio=$(printf '%s' "$home_html" | head -c 100 | tr -d '\n'); alerta "No se pudo extraer el nonce de pestanas tras 2 intentos. tam=$tam bytes inicio=$inicio"
           else
-            resp=$(curl -sS -A "$UA" --max-time 30 \
+            resp=$(curl -sS -A "$UA" --max-time 30 -w '\n__HTTP__%{http_code}' \
               -H "Origin: https://soynaturalis.com" -H "Referer: https://soynaturalis.com/" \
               -H "X-Requested-With: XMLHttpRequest" \
               -X POST "https://soynaturalis.com/wp-admin/admin-ajax.php" \
@@ -127,9 +127,10 @@ jobs:
               --data-urlencode "atts[columns]=3" --data-urlencode "atts[limit]=4" --data-urlencode "atts[product_cats]=108" \
               --data-urlencode "atts[show_title]=1" --data-urlencode "product_cat=108" --data-urlencode "is_general_tab=0" \
               --data-urlencode "security=$tabs_nonce" || true)
-            echo "   nonce=$tabs_nonce -> ${resp:0:30}"
+            cod9=$(printf '%s' "$resp" | grep -oE '__HTTP__[0-9]+' | tail -1 | cut -c9-); resp=$(printf '%s' "$resp" | sed 's/__HTTP__[0-9]*$//'); tit=$(printf '%s' "$resp" | grep -oE '<title>[^<]{0,60}' | head -1)
+            echo "   nonce=$tabs_nonce http=$cod9 -> ${resp:0:30}"
             [ "$resp" = "-1" ] && aviso "El AJAX de pestanas de producto devolvio -1 (nonce invalido/caducado): riesgo H15/H28 real"
-            case "$resp" in *type-product*) echo "   pestanas devuelven productos";; -1) : ;; *) aviso "El AJAX de pestanas no devolvio productos (respuesta: ${resp:0:30})";; esac
+            case "$resp" in *type-product*) echo "   pestanas devuelven productos";; -1) : ;; *) aviso "El AJAX de pestanas no devolvio productos (http=$cod9 ${tit:-} respuesta: ${resp:0:30})";; esac
           fi
 
           echo "== 10. El bloque de nonces ESI no debe venir corrupto (rompio banners y pestanas el 2026-08-07) =="
