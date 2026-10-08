@@ -17,6 +17,7 @@ jobs:
       - name: Bateria de comprobaciones
         run: |
           set -uo pipefail
+          set +e  # 2026-10-08: GitHub corre con -e; un grep sin coincidencias mataba el script sin avisar (7-ago, 10-ago, 7-oct). El resultado lo decide el contador fallos.
           UA="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
           IP_ORIGEN="75.102.58.134"
           HUELLA_DKIM="3dd50b393b51"
