@@ -19,6 +19,7 @@ jobs:
       - name: Precalentar URLs
         run: |
           set -uo pipefail
+          set +e  # 2026-10-08: GitHub corre con -e; un fallo de curl (p.ej. exit 56) tumbaba el job entero sin avisar.
           ok=0
           warn=0
           fail=0
@@ -27,8 +28,14 @@ jobs:
           for USER_AGENT in "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36 NaturalisCacheWarmer/1.0 (+github-actions)" "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1 NaturalisCacheWarmer/1.0 (+github-actions)"; do
           while IFS= read -r url; do
             [ -z "$url" ] && continue
-            result=$(curl -s -L --compressed --max-time 20 -A "$USER_AGENT" -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8" -D "$headers" \
-              -o /dev/null -w "%{http_code}|%{time_total}|%{num_redirects}|%{url_effective}" "$url")
+            for intento in 1 2 3; do
+              result=$(curl -s -L --compressed --max-time 20 -A "$USER_AGENT" -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8" -D "$headers" \
+                -o /dev/null -w "%{http_code}|%{time_total}|%{num_redirects}|%{url_effective}" "$url")
+              code=$(echo "$result" | cut -d'|' -f1)
+              # 2026-10-08: un 5xx o un corte de red puntual tumbaba el job y mandaba correo. Se reintenta 3 veces; 404/301 NO (URL muerta en urls.txt: debe avisar).
+              case "${code:-000}" in 000|5*) if [ "$intento" -lt 3 ]; then echo "reintento $intento/3 code=${code:-000} url=$url"; sleep 10; continue; fi;; esac
+              break
+            done
             code=$(echo "$result" | cut -d'|' -f1)
             time_total=$(echo "$result" | cut -d'|' -f2)
             redirects=$(echo "$result" | cut -d'|' -f3)
