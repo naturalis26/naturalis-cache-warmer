@@ -81,9 +81,9 @@ jobs:
           echo "== 7. El carrito acepta productos (camino real de H15/H28: invitado + nonce) =="
           # La Store API exige nonce: primero GET al carrito para obtenerlo, luego POST.
           # Sin este paso previo la respuesta es 401 y la alarma seria falsa.
-          pid=$(curl -sS -A "$UA" --max-time 30 https://soynaturalis.com/ | grep -oE 'data-product_id="[0-9]+"' | head -1 | grep -oE '[0-9]+') || true
+          pid=$(curl -sS -A "$UA" --max-time 30 https://soynaturalis.com/ | grep -oE '<a [^>]*product_type_simple[^>]*>' | grep -oE 'data-product_id="[0-9]+"' | head -1 | grep -oE '[0-9]+') || true  # 2026-10-14: antes cogia el primer data-product_id fuera del tipo que fuera; un producto variable (11115) da 400 Faltan atributos y alarmaba en falso (12-oct, 13-oct)
           if [ -z "${pid:-}" ]; then
-            alerta "No se encontro ningun producto en la portada para probar el carrito"
+            alerta "No se encontro ningun producto simple en la portada para probar el carrito"
           else
             curl -sS -A "$UA" --max-time 30 -c /tmp/ck.txt -D /tmp/h.txt -o /dev/null \
               https://soynaturalis.com/wp-json/wc/store/v1/cart || true
