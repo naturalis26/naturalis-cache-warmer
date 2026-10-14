@@ -8,6 +8,11 @@ on:
 permissions:
   contents: read
 
+# 2026-10-14: un solo barrido a la vez (cron-job.org lo dispara cada 30 min); si uno se alarga, el siguiente espera en cola en vez de solaparse
+concurrency:
+  group: warm-cache
+  cancel-in-progress: false
+
 jobs:
   warm-cache:
     runs-on: ubuntu-latest
