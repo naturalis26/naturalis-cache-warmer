@@ -46,6 +46,12 @@ jobs:
             redirects=$(echo "$result" | cut -d'|' -f3)
             final_url=$(echo "$result" | cut -d'|' -f4 | tr -d '\r\n')
             cache_status=$(grep -i '^x-litespeed-cache:' "$headers" | tail -1 | cut -d: -f2- | tr -d ' \r\n' || true)
+            # 2026-11-09: calentar tambien la foto principal que la pagina precarga por cabecera Link (fichas, tienda, marcas): 113 de 151 fotos LCP estaban frias en el borde (MEDIDO) y esa 1.a visita pagaba ~+1,9 s de LCP en laboratorio. Un fallo de imagen solo avisa, no cuenta como fallo del job.
+            img=$(grep -i '^link:' "$headers" | grep -o -i '<[^>]*>; *rel=preload; *as=image' | head -1 | sed 's/^<\([^>]*\)>.*/\1/' | tr -d '\r\n')
+            if [ -n "$img" ]; then
+              icode=$(curl -s --max-time 20 -A "$USER_AGENT" -e "$url" -H "Accept: image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8" -o /dev/null -w "%{http_code}" "$img")
+              [ "$icode" = "200" ] || echo "::warning::Imagen code=$icode url=$img"
+            fi
             echo "$(date -u '+%Y-%m-%d %H:%M:%S') code=$code time=${time_total}s cache=${cache_status:-n/a} url=$url"
             if [ "$code" = "200" ]; then
               ok=$((ok+1))
