@@ -142,6 +142,27 @@ jobs:
             echo "   bloque de nonces limpio"
           fi
           echo
+          echo "== 11. Velocidad de las paginas clave cacheadas (2026-11-10, fundador: avisar si pasa de 2,5 s) =="
+          # Mide el tiempo total de la peticion (borde de Cloudflare). Importante: el Accept lleva image/webp; sin el la respuesta cae en otra
+          # variante (BYPASS) y tarda ~4 s siempre (trampa documentada, H111). Si una pagina pasa de 2,5 s se repite UNA vez a los 20 s
+          # (la 1.a visita tras purgar la cache tarda ~4 s y calienta la pagina; la 2.a ya sale rapida) y solo se avisa si las dos pasan.
+          # Si llegan demasiados correos: subir UMBRAL o borrar este bloque (el fundador lo decidio asi). El carrito y mi cuenta NO entran:
+          # salen del servidor (2,4-3,8 s medidos) y avisarian siempre.
+          UMBRAL=2.5
+          ACCEPT_WEBP="text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8"
+          for ruta in / /tienda-2/ /categoria-producto/nutricion-deportiva/proteinas/ /producto/glutamina-platinum-muscletech/ /producto/isolate-gourmet-x-2-libras/; do
+            t=$(curl -sS -o /dev/null -A "$UA" -H "Accept: $ACCEPT_WEBP" -H "Accept-Language: es-CO,es;q=0.9" --max-time 30 -w '%{time_total}' "https://soynaturalis.com$ruta" || echo 99)
+            lenta=$(awk -v t="$t" -v u="$UMBRAL" 'BEGIN{print (t+0>u+0)?1:0}')
+            if [ "$lenta" = "1" ]; then
+              sleep 20
+              t2=$(curl -sS -o /dev/null -A "$UA" -H "Accept: $ACCEPT_WEBP" -H "Accept-Language: es-CO,es;q=0.9" --max-time 30 -w '%{time_total}' "https://soynaturalis.com$ruta" || echo 99)
+              lenta2=$(awk -v t="$t2" -v u="$UMBRAL" 'BEGIN{print (t+0>u+0)?1:0}')
+              echo "   $ruta -> ${t}s y al repetir ${t2}s"
+              [ "$lenta2" = "1" ] && aviso "Velocidad: $ruta tarda ${t}s y ${t2}s (umbral ${UMBRAL}s): revisar cache (cf-cache-status), origen y foto principal"
+            else
+              echo "   $ruta -> ${t}s"
+            fi
+          done
           if [ "$fallos" -gt 0 ]; then
             echo "RESULTADO: $fallos comprobacion(es) fallida(s)."
             exit 1
