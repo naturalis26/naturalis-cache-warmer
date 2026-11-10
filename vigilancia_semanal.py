@@ -16,7 +16,7 @@ import sys
 import urllib.request
 
 BASE = "https://soynaturalis.com"
-LIMITE_IMG_KB = 30  # 5 fichas ya al maximo de compresion pesan 25-29 KB (6-oct)
+LIMITE_IMG_KB = 22  # 10-nov: ninguna ficha con foto <= 22 KB pasa de 2 s en laboratorio movil; >= 23 KB si (CHANGELOG 2026-11-10 (42)). Antes 30.
 TEMA_VERSION = "1.0.5"
 # Ficheros de LiteSpeed de las 4 hojas de Merto cuando se genero la hoja recortada (6-oct).
 MERTO_ESPERADO = {
