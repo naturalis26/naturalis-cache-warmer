@@ -41,7 +41,6 @@ https://soynaturalis.com/marca/vitanas/
 https://soynaturalis.com/politica-de-privacidad/
 https://soynaturalis.com/producto/3g-sure-gold/
 https://soynaturalis.com/producto/3g-sure-silver/
-https://soynaturalis.com/producto/4m1n0-elite/
 https://soynaturalis.com/producto/accesorios/
 https://soynaturalis.com/producto/aceite-corporal-aguacate-y-aceite-de-oliva/
 https://soynaturalis.com/producto/aceite-corporal-almendras-y-aceite-de-oliva/
@@ -66,7 +65,6 @@ https://soynaturalis.com/producto/almendril-milk-x-400-gr/
 https://soynaturalis.com/producto/almendril-milk-x-700gr/
 https://soynaturalis.com/producto/aloe-vera-coenzima-q10/
 https://soynaturalis.com/producto/aloe-vera-vitamina-e/
-https://soynaturalis.com/producto/amino-build/
 https://soynaturalis.com/producto/artri-rheuma-ar-frasco-x-60-capsulas/
 https://soynaturalis.com/producto/ashwagandha-x-90-cap/
 https://soynaturalis.com/producto/balanced-b-complex/
@@ -127,7 +125,6 @@ https://soynaturalis.com/producto/lecitina-de-soya/
 https://soynaturalis.com/producto/levadura-de-cerveza-x-60-capsulas/
 https://soynaturalis.com/producto/levadura-de-cerveza/
 https://soynaturalis.com/producto/maxcol-on-fibra-250-gr/
-https://soynaturalis.com/producto/maxcol-on-forte-x-60-capsulas/
 https://soynaturalis.com/producto/megaplex-creatine-power-proteina-creatina-monohidrato/
 https://soynaturalis.com/producto/melatonin/
 https://soynaturalis.com/producto/mentix-miel-dia-x-6/
@@ -140,7 +137,6 @@ https://soynaturalis.com/producto/omega-3-plus-vitamin-e/
 https://soynaturalis.com/producto/oregano-en-capsulas/
 https://soynaturalis.com/producto/ortiga/
 https://soynaturalis.com/producto/platinum-multivitamin/
-https://soynaturalis.com/producto/pre-entreno-push-w-x-30-serv-sabor-watermelon/
 https://soynaturalis.com/producto/pro-beef-isolate-x-15-sachet-sabor-vainilla/
 https://soynaturalis.com/producto/pro-beef-isolate-x-2-libras-sabor-vainilla/
 https://soynaturalis.com/producto/pro-beef-isolate-x-5-libras-sabor-vainilla/
@@ -170,9 +166,7 @@ https://soynaturalis.com/producto/titan-beef-mass-x-2-libras-vainilla-caramelo/
 https://soynaturalis.com/producto/titan-beef-mass-x-5-libras-vainilla-caramelo/
 https://soynaturalis.com/producto/v-10-multivitaminico-infantil-x-360ml/
 https://soynaturalis.com/producto/valeriana-pasiflora/
-https://soynaturalis.com/producto/vinagre-de-arroz/
 https://soynaturalis.com/producto/vinagre-de-cidra-de-manzana-con-madre/
-https://soynaturalis.com/producto/vinagre-de-cidra/
 https://soynaturalis.com/producto/vinagre-de-manzana-con-extracto-de-cidra/
 https://soynaturalis.com/producto/vinagre-de-manzana-premium/
 https://soynaturalis.com/producto/vinagre-de-manzana/
@@ -219,8 +213,6 @@ https://soynaturalis.com/producto/aceite-corporal-rosa-mosqueta-y-aceite-de-oliv
 https://soynaturalis.com/producto/aceite-corporal-rosa-mosqueta-y-aceite-de-oliva/?attribute_tamano=250+ml
 https://soynaturalis.com/producto/aceite-corporal-de-coco-y-aceite-de-oliva/?attribute_tamano=250+ml
 https://soynaturalis.com/producto/aceite-corporal-de-coco-y-aceite-de-oliva/?attribute_tamano=120+ml
-https://soynaturalis.com/producto/maxcol-on-forte-x-60-capsulas/?attribute_cantidad=120+C%C3%A1psulas
-https://soynaturalis.com/producto/maxcol-on-forte-x-60-capsulas/?attribute_cantidad=60+C%C3%A1psulas
 https://soynaturalis.com/producto/ginseng-royal-jelly/?attribute_caja=30+Ampollas
 https://soynaturalis.com/producto/ginseng-royal-jelly/?attribute_caja=10+Ampollas
 https://soynaturalis.com/producto/accesorios/?attribute_tamano=400ml&attribute_color=Naranja
